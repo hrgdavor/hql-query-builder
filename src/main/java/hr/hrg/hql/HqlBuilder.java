@@ -1,6 +1,5 @@
 package hr.hrg.hql;
 
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,6 +100,17 @@ public class HqlBuilder{
         }
         return this;
     } 
+    
+    /**
+     * Shortcut for instantiating a hibernate query.
+     * @param <T> - query return type
+     * @param session hibernate session
+     * @param type class matching the return type
+     * @return hibernate Query
+     */
+    public <T> Query<T> build(Session session){
+        return make(session, null, this);
+    }
 
     /**
      * Shortcut for instantiating a hibernate query.
@@ -109,7 +119,7 @@ public class HqlBuilder{
      * @param type class matching the return type
      * @return hibernate Query
      */
-    public <T> Query<T> query(Session session, Class<T> type){
+    public <T> Query<T> build(Session session, Class<T> type){
         return make(session, type, this);
     }
     
@@ -134,7 +144,7 @@ public class HqlBuilder{
      * @return hibernate Query
      */
     public static <T> Query<T> make(Session session, Class<T> type, HqlBuilder qh){
-        Query<T> query = session.createQuery(qh.getQueryString(), type);
+        Query<T> query = type == null ? session.createQuery(qh.getQueryString()) : session.createQuery(qh.getQueryString(), type);
         for(var entry:qh.params.entrySet()) {
             try {
                 query.setParameter(entry.getKey(), entry.getValue());
