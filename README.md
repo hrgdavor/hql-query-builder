@@ -63,7 +63,7 @@ WHERE
   AND houseNo > 2
 ```
 
-
+You can improve this output by implementing more logic into `valueToString` method.
 
 ## Executing the query using Hibernate
 
