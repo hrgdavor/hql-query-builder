@@ -12,7 +12,7 @@ Standard way to write **HQL** is ok for smaller queries, but gets ugly very quic
 
 ```java
 Query q = session.createQuery(
-  "SELECT id,street,city FROM Adddress WHERE userId = :userId AND houseNo > :houseNo")
+  "SELECT id FROM Adddress WHERE userId = :userId AND houseNo > :houseNo")
 q.setParameter("userId", userId);
 q.setParameter("houseNo", 2L);
 ```
@@ -21,7 +21,7 @@ This style is also supported by `HqlBuilder` (but it allows much more)
 
 ```java
 var hb = new HqlBuilder(
-  "SELECT id,street,city FROM Adddress WHERE userId = :userId AND houseNo > :houseNo");
+  "SELECT id FROM Adddress WHERE userId = :userId AND houseNo > :houseNo");
 hb.p("userId", userId);
 hb.p("houseNo", 2L);
 ```
@@ -30,7 +30,7 @@ The above query can be written like this:
 
 ```java
 var hb = new HqlBuilder();
-hb.add("SELECT id,street,city");
+hb.add("SELECT id");
 hb.add("FROM Adddress");
 hb.add("WHERE");
 hb.add("  userId = :userId", userId);
@@ -42,7 +42,7 @@ in a way that allows more formatting options for readability, and also placing p
 Each call to `add` puts a newline before each line(except the first), so, for the code above, **HQL** will look like this:
 
 ```sql
-SELECT id,street,city
+SELECT id
 FROM Adddress
 WHERE
   userId = :userId
@@ -56,7 +56,7 @@ WHERE
 When you finish building the desired HQL, just call `.build(session)` or `.build(session, resultType)` to create a Hibernate Query object (that you can then use to list results) 
 
 ```java
-hb.build(AddressPart.class).list()
+hb.build(session, Long.class).list()
 ```
 
 
@@ -119,7 +119,7 @@ public List<AddressPart> getUserAddresses(Long userId){
   
   Session session = ...;// obtain hibernate session in your app
   
-  return hb.build(AddressPart.class).list()
+  return hb.build(session, AddressPart.class).list()
 }
 ```
 
@@ -140,7 +140,7 @@ if(name != null && !name.isEmpty()){
 }
   Session session = ...;// obtain hibernate session in your app
   
-  return hb.build(User.class).list()
+  return hb.build(session, User.class).list()
 }
 ```
 
