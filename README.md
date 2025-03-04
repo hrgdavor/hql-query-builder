@@ -3,7 +3,7 @@ I both love and hate(more) Hibernate, and try to avoid it, but that is not alway
 
 This utility is for writing HQL in more readable way. To simplify writing multiline queries, and queries that are different depending on parameter values (like optional filters).
 
-For now, this not published as a maven library just copy the utility class [LiveTest4j.java](src/main/java/hr/hrg/livetest4j/LiveTest4j.java)  to your project.
+For now, this not published as a maven library just copy the utility class [HqlBuilder.java](src/main/java/hr/hrg/hql/HqlBuilder.java)  to your project.
 
 ## Using
 
