@@ -131,9 +131,9 @@ public List<User> getUsers(String name){
   hb.add("FROM User");// HQL when selecting whole entities only needs FROM
   hb.add("WHERE");
   hb.add("  deleted = :deleted", false);
-	if(name != null && !name.isEmpty()){
-	  hb.add("  name LIKE :name", "%"+name+"%");
-  }
+if(name != null && !name.isEmpty()){
+  hb.add("  name LIKE :name", "%"+name+"%");
+}
   Session session = ...;// obtain hibernate session in your app
   
   return hb.build(User.class).list()
