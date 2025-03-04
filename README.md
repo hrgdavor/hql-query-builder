@@ -54,8 +54,6 @@ WHERE
   AND houseNo > :houseNo  
 ```
 
-
-
 ## Using .add
 
 The builder can be constructed empty, or with parameters (it is just alias to `.add`)
@@ -140,3 +138,27 @@ if(name != null && !name.isEmpty()){
 }
 ```
 
+
+
+## Parameters without name
+
+Not sure if it s good or bad to use the builder like this, but I could not help but to allow this use-case. If you just use `:` without defining parameter name, then values are required at the `.add` method call. 
+
+```java
+var hb = new HqlBuilder();
+hb.add("SELECT id,street,city");
+hb.add("FROM Adddress");
+hb.add("WHERE");
+hb.add("  userId = :", userId);
+hb.add("  AND houseNo > :", 2L);
+```
+
+For the code above, HQL will look like this:
+
+```sql
+SELECT id,street,city
+FROM Adddress
+WHERE
+  userId = :_param_1
+  AND houseNo > :_param_2  
+```

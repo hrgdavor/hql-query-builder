@@ -28,6 +28,12 @@ public class HqlBuilderTest {
         hb.p("houseNo", 2L);
 
         assertEquals("houseNo,userId", joinCommaSorted(hb.params.keySet()));
+
+        hb = new HqlBuilder("SELECT id,street,city FROM Adddress WHERE userId = : AND houseNo > :", userId, 2l);
+
+        assertEquals("SELECT id,street,city FROM Adddress WHERE userId = : AND houseNo > :", hb.getQueryString());
+        assertEquals("_param_1,_param_2", joinCommaSorted(hb.params.keySet()));
+
     }
 
 }

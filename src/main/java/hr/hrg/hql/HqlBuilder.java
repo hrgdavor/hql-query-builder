@@ -16,6 +16,7 @@ public class HqlBuilder{
     private StringBuilder queryString = new StringBuilder();
     private boolean addNext = true;
     private boolean firstLine = true;
+    private int seq = 1;
 
     /**
      * Constructor for separating construction and composition
@@ -71,7 +72,6 @@ public class HqlBuilder{
             queryString.append('\n');
         }
         queryString.append(queryWithParams);
-        if(values.length == 0) return this;
         
         int idx = 0;
         int pos = 0;
@@ -90,7 +90,16 @@ public class HqlBuilder{
                     }
                 }
                 String paramName = tilEnd ? queryWithParams.substring(idx+1) : queryWithParams.substring(idx+1, paramEnd);
-                if(values.length <= pos) throw new RuntimeException("Missing value for parameter "+paramName);
+                if(values.length <= pos) {
+                    if(paramName.isEmpty()) throw new RuntimeException("Value must be provided for parameters without name");
+                    
+                    // allow adding query parts with params to be defined later
+                    // but only if no params are provided
+                    if(values.length == 0) return this; 
+
+                    throw new RuntimeException("Missing value for parameter "+paramName);
+                }
+                if(paramName.isEmpty()) paramName = "_param_" + seq++;
                 params.put(paramName, values[pos]);
                 pos++;
                 if(tilEnd) break;
