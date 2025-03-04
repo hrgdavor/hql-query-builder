@@ -49,6 +49,20 @@ WHERE
   AND houseNo > :houseNo  
 ```
 
+## Debug and logging
+
+You can get the query that is going into hibernate by calling `hb.getQueryString()` and you will get the query above.
+
+You can also dump what query with values looks like with `hb.toString()`. Not actual SQL that will go into database, just an approximation where parameter placeholders are replaced with values(NULL for null values, and for other `.toString()`)
+
+```java
+SELECT id,street,city
+FROM Adddress
+WHERE
+  userId = 11
+  AND houseNo > 2
+```
+
 
 
 ## Executing the query using Hibernate
@@ -58,6 +72,7 @@ When you finish building the desired HQL, just call `.build(session)` or `.build
 ```java
 hb.build(session, Long.class).list()
 ```
+
 
 
 ## More details on .add
