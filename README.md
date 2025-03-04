@@ -121,3 +121,22 @@ public List<AddressPart> getUserAddresses(Long userId){
 
 
 
+## More examples
+
+A query that has optional name filter. If name is not provided, name filter is not added to query.
+
+```java
+public List<User> getUsers(String name){
+  var hb = new HqlBuilder();
+  hb.add("FROM User");// HQL when selecting whole entities only needs FROM
+  hb.add("WHERE");
+  hb.add("  deleted = :deleted", false);
+	if(name != null && !name.isEmpty()){
+	  hb.add("  name LIKE :name", "%"+name+"%");
+  }
+  Session session = ...;// obtain hibernate session in your app
+  
+  return hb.build(User.class).list()
+}
+```
+
