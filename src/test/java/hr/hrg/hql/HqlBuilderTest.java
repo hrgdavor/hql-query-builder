@@ -3,6 +3,7 @@ package hr.hrg.hql;
 import static java.lang.String.join;
 import static org.junit.Assert.*;
 import static hr.hrg.hql.TestUtil.*;
+import static hr.hrg.hql.HqlBuilder.*;
 
 import org.junit.Test;
 
@@ -31,9 +32,39 @@ public class HqlBuilderTest {
 
         hb = new HqlBuilder("SELECT id,street,city FROM Adddress WHERE userId = : AND houseNo > :", userId, 2l);
 
-        assertEquals("SELECT id,street,city FROM Adddress WHERE userId = : AND houseNo > :", hb.getQueryString());
+        assertEquals("SELECT id,street,city FROM Adddress WHERE userId = :_param_1 AND houseNo > :_param_2", hb.getQueryString());
         assertEquals("_param_1,_param_2", joinCommaSorted(hb.params.keySet()));
 
+    }
+    
+    @Test
+    public void testNextParam(){
+        assertEquals(new ParamPos(1, 2, "a"), nextParam(":a", -1));
+        assertEquals(new ParamPos(1, 2, "a"), nextParam(":a ", -1));
+        assertEquals(new ParamPos(2, 3, "a"), nextParam(" :a ", -1));
+
+        assertEquals(new ParamPos(1, 1, ""), nextParam(":", -1));
+        assertEquals(new ParamPos(1, 1, ""), nextParam(": ", -1));
+        assertEquals(new ParamPos(2, 2, ""), nextParam(" : ", -1));
+
+        assertEquals(new ParamPos(1, 5, "test"), nextParam(":test", -1));
+        assertEquals(new ParamPos(1, 5, "test"), nextParam(":test ", -1));
+        assertEquals(new ParamPos(7, 11, "test"), nextParam("where :test ", -1));
+    }
+    
+    @Test
+    public void testToString(){
+        var hb = new HqlBuilder("SELECT a,b from C WHERE a>:a AND b>:b", 1,2);
+        assertEquals("SELECT a,b from C WHERE a>1 AND b>2", hb.toString());
+        
+        hb = new HqlBuilder();
+        hb.add("SELECT a,b");
+        hb.add("FROM C");
+        hb.add("WHERE");
+        hb.add("  a>:a",1);
+        hb.add("  AND b>:",2);
+        assertEquals(String.join("\n", "SELECT a,b","FROM C","WHERE","  a>:a","  AND b>:_param_1"), hb.getQueryString());
+        assertEquals(String.join("\n", "SELECT a,b","FROM C","WHERE","  a>1","  AND b>2"), hb.toString());
     }
 
 }

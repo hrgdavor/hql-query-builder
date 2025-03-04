@@ -18,6 +18,9 @@ public class HqlBuilder{
     private boolean firstLine = true;
     private int seq = 1;
 
+    public static record ParamPos(int start, int end, String name) {}
+    public static final ParamPos NOPE = new ParamPos(-1, -1, "");
+    
     /**
      * Constructor for separating construction and composition
      */
@@ -71,44 +74,64 @@ public class HqlBuilder{
         }else {
             queryString.append('\n');
         }
-        queryString.append(queryWithParams);
         
-        int idx = 0;
         int pos = 0;
-        int paramEnd = -1;
-        boolean tilEnd = false;
+        int offset = 0;
+        ParamPos paramPos = NOPE;
         try {
             while(true) {
-                idx = queryWithParams.indexOf(":", paramEnd);
-                if(idx == -1) break;
-                tilEnd = true;
-                for(paramEnd = idx+1; paramEnd<queryWithParams.length(); paramEnd++) {
-                    var ch = queryWithParams.charAt(paramEnd);
-                    if(!Character.isJavaIdentifierPart(ch)) {
-                        tilEnd = false;
-                        break;
-                    }
-                }
-                String paramName = tilEnd ? queryWithParams.substring(idx+1) : queryWithParams.substring(idx+1, paramEnd);
+                paramPos = nextParam(queryWithParams, paramPos.end);
+                if(paramPos.start == -1) break;
+                
+                String paramName = paramPos.name;
                 if(values.length <= pos) {
                     if(paramName.isEmpty()) throw new RuntimeException("Value must be provided for parameters without name");
-                    
+
                     // allow adding query parts with params to be defined later
                     // but only if no params are provided
-                    if(values.length == 0) return this; 
+                    if(values.length == 0) {
+                        queryString.append(queryWithParams);
+                        return this; 
+                    }
 
                     throw new RuntimeException("Missing value for parameter "+paramName);
                 }
                 if(paramName.isEmpty()) paramName = "_param_" + seq++;
                 params.put(paramName, values[pos]);
                 pos++;
-                if(tilEnd) break;
+                
+                if(paramPos.start > 0) queryString.append(queryWithParams.subSequence(offset, paramPos.start-1));
+                queryString.append(":").append(paramName);
+                
+                offset = paramPos.end;                
+                if(paramPos.end >= queryWithParams.length()) break;
             }
+            if(offset < queryWithParams.length()) {
+                queryString.append(queryWithParams.subSequence(offset, queryWithParams.length()));
+            }            
         } catch (Exception e) {
-            throw new RuntimeException("Problem paring pos:"+pos+", idx:"+idx+", tilEnd:"+tilEnd+", paramEnd:"+paramEnd+" query: "+queryWithParams, e);
+            throw new RuntimeException("Problem parsing pos:"+pos+" query: "+queryWithParams, e);
         }
         return this;
     } 
+    
+    public static ParamPos nextParam(String str, int offset) {
+        int start = str.indexOf(":", offset);
+        if(start == -1) return NOPE;
+        start ++;// skip :
+
+        int end = start;
+        int strLen = str.length();
+        for(; end<strLen; end++) {
+            var ch = str.charAt(end);
+            if(!Character.isJavaIdentifierPart(ch)) {
+                break;
+            }
+        }
+
+        return new ParamPos(start, end, str.substring(start, end));
+    }
+    
     
     /**
      * Shortcut for instantiating a hibernate query.
@@ -166,5 +189,29 @@ public class HqlBuilder{
     
     public String getQueryString() {
         return queryString.toString();
+    }
+    
+    public CharSequence valueToString(Object value) {
+        return value == null ? "NULL":value.toString();
+    }
+    
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        ParamPos paramPos = NOPE;
+        String query = queryString.toString();
+        int offset = 0;
+        while(true) {
+            paramPos = nextParam(query, paramPos.end);
+            if(paramPos.start == -1) break;
+
+            if(paramPos.start > 0) sb.append(query.subSequence(offset, paramPos.start-1));
+            sb.append(valueToString(params.get(paramPos.name)));
+            
+            offset = paramPos.end;
+        }
+        if(offset < query.length()) {
+            sb.append(query.subSequence(offset, query.length()));
+        }
+        return sb.toString();
     }
 }
