@@ -82,7 +82,7 @@ hb.add("FROM User");
 Add query part with parameters and values
 
 ```java
-hb.add("WHERE userId:userId", userId);
+hb.add("WHERE userId = :userId", userId);
 ```
 
 If you are providing values for parameters, you must match count of parameters in query part. Either provide all parameter values, or provide none (and define them later using `.p`).
@@ -92,7 +92,7 @@ If you are providing values for parameters, you must match count of parameters i
 Add a new query part with parameter placeholders, and provide parameter values separately)
 
 ```java
-hb.add("  AND city=:city");
+hb.add("  AND city = :city");
 hb.p("city", city);
 ```
 
