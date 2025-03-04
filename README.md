@@ -1,17 +1,14 @@
 # Hibernate HQL query builder
-I both love and hate(more) Hibernate, and try to avoid it, but that is not always possible. Hibernate is great , and has many features. For the same reason it is also a huge bloat, slows down start-up, does freaky bytecode manipulation, and is pain in the ass so many times. 
+A single utility class for writing HQL in more readable way. Simplifies writing multiline queries, and queries that have optional parts depending on parameter values (like API adding extra filter by date if supplied date != null).
 
-This utility is for writing HQL in more readable way. To simplify writing multiline queries, and queries that are different depending on parameter values (like optional filters).
+## The utility
 
-For now, this not published as a maven library. **Just copy** the utility class [HqlBuilder.java](src/main/java/hr/hrg/hql/HqlBuilder.java)  to your project.
+For now, this not published as a maven library. **Just copy** the utility class [HqlBuilder.java](src/main/java/hr/hrg/hql/HqlBuilder.java)  to your project. If you like it, but not 100%, just tweak it to your own coding style.
 
-## Using
+**Rant:** *I both love and hate(more) Hibernate. I try to avoid it, but that is not always possible. Technologically Hibernate is great , and has sooo many features. For the same reason it is also is a huge bloat, slows down start-up, does freaky bytecode manipulation, and is pain in the ass so many times. Takes a ton of time to learn and* obscures learning actual SQL. 
 
-The builder in the build phase does not need Hibernate. When you finish building the desired HQL, just call `.build(session)` or `.build(session, resultType)` to create a Hibernate Query object (that you can then use to list results) 
-
-
-
-Standard way to write HQL is ok for smaller queries, but gets ugly very quickly.
+## Basic comparison and sample use 
+Standard way to write **HQL** is ok for smaller queries, but gets ugly very quickly.
 
 ```java
 Query q = session.createQuery(
@@ -19,8 +16,6 @@ Query q = session.createQuery(
 q.setParameter("userId", userId);
 q.setParameter("houseNo", 2L);
 ```
-
-
 
 This style is also supported by `HqlBuilder` (but it allows much more)
 
@@ -44,7 +39,7 @@ hb.add("  AND houseNo > :houseNo", 2L);
 
 in a way that allows more formatting options for readability, and also placing parameter values close to where they are used in the query itself. 
 
-Each call to `add` puts a newline before each line(except the first), so, for the code above, HQL will look like this:
+Each call to `add` puts a newline before each line(except the first), so, for the code above, **HQL** will look like this:
 
 ```sql
 SELECT id,street,city
@@ -54,7 +49,18 @@ WHERE
   AND houseNo > :houseNo  
 ```
 
-## Using .add
+
+
+## Executing the query using Hibernate
+
+When you finish building the desired HQL, just call `.build(session)` or `.build(session, resultType)` to create a Hibernate Query object (that you can then use to list results) 
+
+```java
+hb.build(AddressPart.class).list()
+```
+
+
+## More details on .add
 
 The builder can be constructed empty, or with parameters (it is just alias to `.add`)
 
@@ -96,9 +102,9 @@ hb.p("city", city);
 
 
 
-## HQL works nice with records
+## Hibernate HQL works nice with records
 
-As you can give a record to Hibernate Query to fill it with query results, this gives a nice way of working with selected data.
+As you can give a record to Hibernate Query to fill it with query results, this gives a nice way of working with selected data (this is part of Hibernate, not a feature added by this utility).
 
 ```java
 // Address entity has many more fields, here we define those that we plan to select
