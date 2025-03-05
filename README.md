@@ -161,7 +161,7 @@ if(name != null && !name.isEmpty()){
 
 
 
-## Parameters without name
+## Dilemma 1 Parameters without name
 
 Not sure if it s good or bad to use the builder like this, but I could not help but to allow this use-case. If you just use `:` without defining parameter name, then values are required at the `.add` method call. 
 
@@ -182,4 +182,40 @@ FROM Adddress
 WHERE
   userId = :_param_1
   AND houseNo > :_param_2  
+```
+
+## Dilemma 2 conditional code formatting
+
+I would like to keep consistent visual formatting of indent in conditional statements. Example of such is:
+
+```java
+  var hb = new HqlBuilder();
+  hb.add("FROM User");// HQL when selecting whole entities only needs FROM
+  hb.add("WHERE");
+  hb.add("  deleted = :deleted", false);
+  if(name != null && !name.isEmpty()){
+    hb.add("  name LIKE :name", "%"+name+"%");
+  }
+```
+
+Now that `if` statement moves/confuses the indent of the HQL slightly. This is not a huge issue, but it bothers me. I have not found perfect solution, but am playing with few ideas.
+
+One idea is to move java code indent back:
+```java
+  var hb = new HqlBuilder();
+  hb.add("FROM User");FROM
+  hb.add("WHERE");
+  hb.add("  deleted = :deleted", false);
+if(name != null && !name.isEmpty()){
+  hb.add("  name LIKE :name", "%"+name+"%");
+}
+```
+Another idea is utility function in the builder (but it works only for one line of HQL)
+```java
+  var hb = new HqlBuilder();
+  hb.add("FROM User");
+  hb.add("WHERE");
+  hb.add("  deleted = :deleted", false);
+  hb.addNextIf(name != null && !name.isEmpty());
+  hb.add("  name LIKE :name", "%"+name+"%");
 ```
