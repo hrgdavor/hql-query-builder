@@ -72,6 +72,11 @@ public class HqlBuilderTest {
         assertEquals("bla,", joinCollection(new StringBuffer(),",",Arrays.asList("bla",null)).toString());
         assertEquals(",bla", joinCollection(new StringBuffer(),",",Arrays.asList(null,"bla")).toString());
         
+
+        assertEquals("NULL", new HqlBuilder(":a").toString());
+        assertEquals(" NULL", new HqlBuilder(" :a").toString());
+        
+
         var hb = new HqlBuilder("SELECT a,b from C WHERE a>:a AND b>:b", 1,2);
         assertEquals("SELECT a,b from C WHERE a>1 AND b>2", hb.toString());
         

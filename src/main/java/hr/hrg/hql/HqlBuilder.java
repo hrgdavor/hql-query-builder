@@ -205,7 +205,9 @@ public class HqlBuilder{
             paramPos = nextParam(query, paramPos.end);
             if(paramPos.start == -1) break;
 
-            if(paramPos.start > 0) sb.append(query.subSequence(offset, paramPos.start-1));
+            // start can never be zero, as it either there is not ":" or ":" is first, and then
+            // start = 1 (start does not include ":")
+            sb.append(query.subSequence(offset, paramPos.start-1));
             sb.append(valueToString(params.get(paramPos.name)));
             
             offset = paramPos.end;
