@@ -116,6 +116,12 @@ public class HqlBuilder{
         return this;
     } 
     
+    public HqlBuilder prefix(String prefix) {
+        var tmp = queryString;
+        queryString = new StringBuilder().append(prefix).append(tmp);
+        return this;
+    }    
+    
     public static ParamPos nextParam(String str, int offset) {
         int start = str.indexOf(":", offset);
         if(start == -1) return NOPE;

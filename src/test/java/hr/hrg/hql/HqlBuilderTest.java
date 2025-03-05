@@ -75,6 +75,7 @@ public class HqlBuilderTest {
 
         assertEquals("NULL", new HqlBuilder(":a").toString());
         assertEquals(" NULL", new HqlBuilder(" :a").toString());
+        assertEquals("bla NULL", new HqlBuilder(" :a").prefix("bla").toString());
         
 
         var hb = new HqlBuilder("SELECT a,b from C WHERE a>:a AND b>:b", 1,2);
