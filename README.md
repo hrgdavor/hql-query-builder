@@ -161,7 +161,7 @@ if(name != null && !name.isEmpty()){
 
 
 
-## Dilemma 1 Parameters without name
+## Dilemma 1: parameters without name
 
 Not sure if it s good or bad to use the builder like this, but I could not help but to allow this use-case. If you just use `:` without defining parameter name, then values are required at the `.add` method call. 
 
@@ -184,7 +184,7 @@ WHERE
   AND houseNo > :_param_2  
 ```
 
-## Dilemma 2 conditional code formatting
+## Dilemma 2: conditional code formatting
 
 I would like to keep consistent visual formatting of indent in conditional statements. Example of such is:
 
