@@ -2,6 +2,11 @@ package hr.hrg.hql;
 
 import static java.lang.String.join;
 import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static hr.hrg.hql.TestUtil.*;
 import static hr.hrg.hql.HqlBuilder.*;
 
@@ -55,6 +60,18 @@ public class HqlBuilderTest {
     
     @Test
     public void testToString(){
+        new TestUtil();// do this stupid instantiation to get 100% coverage
+        assertEquals(",bla", joinCommaSorted(Arrays.asList("bla",null)));
+        assertEquals("bla", joinCommaSorted(Arrays.asList("bla")));
+        assertEquals("", joinCommaSorted(Arrays.asList("")));
+        List<?> list = new ArrayList<>();
+        list.add(null);
+        assertEquals("", joinCommaSorted(list));
+        assertEquals("", joinCommaSorted(new ArrayList<>()));
+        assertEquals("", joinCollection(new StringBuffer(),",",new ArrayList<>()).toString());
+        assertEquals("bla,", joinCollection(new StringBuffer(),",",Arrays.asList("bla",null)).toString());
+        assertEquals(",bla", joinCollection(new StringBuffer(),",",Arrays.asList(null,"bla")).toString());
+        
         var hb = new HqlBuilder("SELECT a,b from C WHERE a>:a AND b>:b", 1,2);
         assertEquals("SELECT a,b from C WHERE a>1 AND b>2", hb.toString());
         
@@ -62,10 +79,33 @@ public class HqlBuilderTest {
         hb.add("SELECT a,b");
         hb.add("FROM C");
         hb.add("WHERE");
-        hb.add("  a>:a",1);
-        hb.add("  AND b>:",2);
-        assertEquals(String.join("\n", "SELECT a,b","FROM C","WHERE","  a>:a","  AND b>:_param_1"), hb.getQueryString());
-        assertEquals(String.join("\n", "SELECT a,b","FROM C","WHERE","  a>1","  AND b>2"), hb.toString());
+        hb.add("  a>:a",null);
+        hb.add("  AND b>: ",2);
+        assertEquals(String.join("\n", "SELECT a,b","FROM C","WHERE","  a>:a","  AND b>:_param_1 "), hb.getQueryString());
+        assertEquals(String.join("\n", "SELECT a,b","FROM C","WHERE","  a>NULL","  AND b>2 "), hb.toString());
     }
 
+    @Test
+    public void testAddNextIf(){
+        boolean someReasongToWork = true;
+
+        var hb = new HqlBuilder();
+        hb.add("SELECT a,b");
+        hb.addNextIf(someReasongToWork);
+        hb.add(":a FROM C");
+        
+        assertEquals(String.join("\n", "SELECT a,b",":a FROM C"), hb.getQueryString());
+        
+        someReasongToWork = false;
+
+        hb = new HqlBuilder();
+        hb.add("SELECT a,b");
+        hb.addNextIf(someReasongToWork);
+        hb.add("FROM C");
+        
+        assertEquals(String.join("\n", "SELECT a,b"), hb.getQueryString());
+        
+    }
+    
+    
 }

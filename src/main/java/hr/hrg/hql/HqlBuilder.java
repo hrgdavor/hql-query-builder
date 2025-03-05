@@ -20,6 +20,7 @@ public class HqlBuilder{
 
     public static record ParamPos(int start, int end, String name) {}
     public static final ParamPos NOPE = new ParamPos(-1, -1, "");
+    private static final Object[] ARR_WITH_NULL = {null};
     
     /**
      * Constructor for separating construction and composition
@@ -74,7 +75,7 @@ public class HqlBuilder{
         }else {
             queryString.append('\n');
         }
-        
+        if(values == null) values = ARR_WITH_NULL;
         int pos = 0;
         int offset = 0;
         ParamPos paramPos = NOPE;
